@@ -1,0 +1,16 @@
+{
+  "name": "zombietap",
+  "version": "1.0.0",
+  "description": "",
+  "main": "run.js",
+  "scripts": {
+    "start": "node ./server/bot/run.js"
+  },
+  "author": "Ivan Kohan",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.3",
+    "grammy": "^1.28.0",
+    "node-telegram-bot-api": "^0.66.0"
+  }
+}

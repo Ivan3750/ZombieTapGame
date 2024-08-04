@@ -1,0 +1,164 @@
+@import url("https://fonts.googleapis.com/css?family=Arimo:regular,500,600,700,italic,500italic,600italic,700italic");
+
+* {
+  user-select: none;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  text-decoration: none;
+  font-family: "Arimo";
+  color: #ffffff;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+:focus,
+:active,
+a:focus,
+a:active {
+  outline: none;
+}
+
+nav,
+footer,
+header,
+aside {
+  display: block;
+}
+
+input,
+button,
+textarea {
+  font-family: inherit;
+}
+
+input::-ms-clear,
+button::-moz-focus-inner {
+  display: none;
+}
+
+button {
+  cursor: pointer;
+  background-color: transparent;
+}
+
+a,
+a:visited,
+a:hover {
+  text-decoration: none;
+}
+
+ul li {
+  list-style: none;
+}
+
+img {
+  vertical-align: top;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  font-family: "Arimo";
+  font-size: inherit;
+  font-weight: 400;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  box-sizing: border-box;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100svh;
+  align-items: center;
+  background-color: black;
+  overflow: hidden;
+  position: relative;
+}
+
+main {
+  padding: 20px 0px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  box-sizing: border-box;
+  height: 100%;
+}
+
+.coin-icon {
+  width: 25px;
+  height: 25px;
+}
+
+form {
+  width: 100%;
+  border-radius: 20px;
+  background: rgb(196, 196, 196);
+  height: 100%;
+  box-sizing: border-box;
+  padding: 20px 10px;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  align-items: center;
+  gap: 15px;
+}
+
+input,
+textarea {
+  padding-left: 10px;
+  border-radius: 20px;
+  box-sizing: border-box;
+  background: rgb(51, 51, 51);
+  width: 100%;
+  height: 40px;
+}
+
+textarea {
+  padding-top: 10px;
+  height: 80px;
+}
+
+.task-image-box {
+  width: 75px;
+  height: 75px;
+  background-color: rgb(55, 55, 55);
+  border-radius: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: 0.4s;
+}
+
+.task-image-box:active {
+  background-color: rgb(40, 40, 40);
+}
+
+.task-image-icon {
+  width: 50%;
+  height: 50%;
+}
+
+form button {
+  border-radius: 20px;
+  background: rgb(255, 96, 69);
+  height: 40px;
+  width: 100%;
+}

@@ -1,0 +1,244 @@
+@import url("https://fonts.googleapis.com/css?family=Arimo:regular,500,600,700,italic,500italic,600italic,700italic");
+
+
+* {
+  user-select: none;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  text-decoration: none;
+  font-family: "Arimo";
+  color: #ffffff;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+:focus,
+:active,
+a:focus,
+a:active {
+  outline: none;
+}
+
+nav,
+footer,
+header,
+aside {
+  display: block;
+}
+
+input,
+button,
+textarea {
+  font-family: inherit;
+}
+
+input::-ms-clear,
+button::-moz-focus-inner {
+  display: none;
+}
+
+button {
+  cursor: pointer;
+  background-color: transparent;
+}
+
+a,
+a:visited,
+a:hover {
+  text-decoration: none;
+}
+
+ul li {
+  list-style: none;
+}
+
+img {
+  vertical-align: top;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  font-family: "Arimo";
+    font-size: inherit;
+  font-weight: 400;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  box-sizing: border-box;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100svh;
+  align-items: center;
+  background-color: black;
+    overflow: hidden;
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 200px;
+  width: 100%;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.522) 0%, rgba(0, 0, 0, 0) 100%);
+  z-index: 5;
+}
+
+main {
+    padding: 20px 0px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+    align-items: center;
+  gap: 40px;
+  box-sizing: border-box;
+  height: 100%;
+
+}
+
+.coin-icon{
+    width: 25px;
+    height: 25px;
+  }
+
+
+
+
+
+
+
+
+
+.amount-users {
+    font-family: Arimo;
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 0px;
+    letter-spacing: 0px;
+    text-align: left;
+    z-index: 5;
+}
+.amount-users-txt {
+    color: rgba(255, 255, 255, 0.6);
+    font-family: Arimo  ;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 24px;
+    letter-spacing: 0px;
+    text-align: left;
+    margin-left: 15px;
+
+}
+
+.task-block {
+    height: max-content;
+    max-height: 100%;
+    overflow-y: scroll;
+
+    padding: 5px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 50px;
+    width: 95%;
+    border-radius: 20px;
+    background: linear-gradient(180.00deg, rgb(51 51 51) 0%, rgba(51, 51, 51, 0.7) 100%);
+
+    /* --- */
+
+
+  color: rgb(255, 255, 255);
+  cursor: pointer;
+  text-decoration: none solid rgb(255, 255, 255);
+  outline: rgb(255, 255, 255) none 0px;
+  background: none 0% 0% / auto repeat scroll padding-box border-box rgb(22, 22, 22);
+  border-radius: 12px;
+}
+.task-box {
+    padding: 5px 10px;
+
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    border-bottom: #2c2c2c2e 2px solid;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+.task-box:active {
+    transition: .2s;
+    background: none 0% 0% / auto repeat scroll padding-box border-box rgb(43, 43, 43);
+    border-radius: 10px;
+
+}
+
+.task-icon-box {
+    border-radius: 50%;
+    min-height: 50px;
+    min-width: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: none 0% 0% / auto repeat scroll padding-box border-box rgb(45, 45, 45);
+
+    
+}
+.task-icon {
+    width: 30px;
+    height: 30px;
+}
+.task-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-weight: 300;
+}
+.task-name-bottom{
+    display: flex;
+    gap: 5px;
+    width: max-content;
+    font-weight: 300;
+}
+.task-name {
+    width: max-content;
+    font-size: 14px;
+    font-weight: 800;
+}
+.task-price {
+    flex-basis: 100%;
+    text-align: end;
+}
+
+.task-reward-box{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-basis: 100%;
+    justify-content: flex-end;
+}
+.create-task{
+
+    border-radius: 20px;
+    background: rgb(255, 96, 69);
+    height: 40px;
+    width: 200px;
+  
+}

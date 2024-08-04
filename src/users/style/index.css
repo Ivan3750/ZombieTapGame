@@ -1,0 +1,45 @@
+/* .play-btn{
+    width: 250px;
+    height: 40px;
+    border-radius: 20px;
+  background: rgb(255, 96, 69);
+  color: rgb(255, 255, 255);
+  font-family: Arimo;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 23px;
+  letter-spacing: 0px;
+  text-align: center;
+  }
+
+  .avatar{
+    margin-left: 50px;
+  }
+
+  main{
+   width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100vh;
+      align-items: center;
+      gap: 20px;
+      box-sizing: border-box;
+
+    } */
+
+    .heart{
+      width: 50px;
+      height: 50px;
+    }
+    .hearts{
+      display: flex;
+      align-items: center;
+
+    }
+    .heart-amount{
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 69px;
+      text-shadow: 0px 0px 4px #838383;
+    }

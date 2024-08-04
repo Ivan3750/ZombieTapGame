@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Task</title>
+  <link rel="stylesheet" href="../style/createTask.css">
+  <link rel="stylesheet" href="../style/normalize.css">
+</head>
+<body>
+  <div class="mask">
+    <div class="loader loader-2"></div>
+  </div>
+  <main>
+    <form id="form">
+      <div class="task-image-box">
+        <img src="../assets/icons/upload.png" alt="" class="task-image-icon">
+        <input type="file" id="file-input" style="display: none;" accept="image/*">
+      </div>
+      <input type="text" id="name" name="name" required placeholder="Task name">
+      <input type="number" min="0" id="reward" name="reward" required placeholder="Reward">        
+      <textarea id="description" name="description" required placeholder="Description"></textarea>
+      <button type="submit" id="submit">Enter</button>
+    </form>
+  </main>
+  <script src="../scripts/admin.js"></script>
+  <script src="../scripts/normalize.js"></script>
+
+</body>
+</html>

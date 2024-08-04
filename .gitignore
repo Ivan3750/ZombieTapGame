@@ -1,0 +1,7 @@
+
+main.py
+Backend_and_Bot/Bot/config.py
+ZombieTapDB.session.sql
+venv
+__pycache__
+/node_modules

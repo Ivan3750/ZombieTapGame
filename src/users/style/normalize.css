@@ -1,0 +1,313 @@
+@import url("https://fonts.googleapis.com/css?family=Arimo:regular,500,600,700,italic,500italic,600italic,700italic");
+
+
+* {
+  user-select: none;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  text-decoration: none;
+  font-family: "Arimo";
+  color: #ffffff;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+:focus,
+:active,
+a:focus,
+a:active {
+  outline: none;
+}
+
+nav,
+footer,
+header,
+aside {
+  display: block;
+}
+
+input,
+button,
+textarea {
+  font-family: inherit;
+}
+
+input::-ms-clear,
+button::-moz-focus-inner {
+  display: none;
+}
+
+button {
+  cursor: pointer;
+  background-color: transparent;
+}
+
+a,
+a:visited,
+a:hover {
+  text-decoration: none;
+}
+
+ul li {
+  list-style: none;
+}
+
+img {
+  vertical-align: top;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  font-family: "Arimo";
+    font-size: inherit;
+  font-weight: 400;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  box-sizing: border-box;
+  padding: 15px 10px;
+    display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100svh;
+  align-items: center;
+  background: url("../../assets/img/background.jpg") no-repeat center/cover;
+/*   backdrop-filter: grayscale(0.1) opacity(0.4);
+ */  overflow: hidden;
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 200px;
+  width: 100%;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.522) 0%, rgba(0, 0, 0, 0) 100%);
+  z-index: 5;
+}
+
+main {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+    align-items: center;
+  gap: 20px;
+  box-sizing: border-box;
+  height: 100%;
+  z-index: 5;
+}
+
+.main {
+
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.score {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  z-index: 7;
+}
+
+.score p {
+  font-size: 50px;
+  font-weight: 800;
+  line-height: 69px;
+  text-shadow: 0px 0px 4px #838383;
+}
+
+.rank,
+.name {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 18px;
+  text-shadow: 0px 0px 4px #838383;
+  display: none;
+}
+
+.avatar {
+  margin: 30px 0 0 50px;
+  width: 225px;
+}
+
+.controls {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  height: 70px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 10px;
+  border-radius: 16px;
+  /* backdrop-filter: blur(24px) saturate(1.4);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
+  background: linear-gradient(145deg, #4A4A4A, #363636);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 100;
+  color: #FFFFFF; */ /* Білий текст для контрасту */
+
+
+  box-sizing: border-box;
+gap: normal;
+color: rgb(255, 255, 255);
+text-size-adjust: 100%;
+background: none 0% 0% / auto repeat scroll padding-box border-box rgba(10, 10, 10, 0.6);
+}
+
+
+
+.coin {
+  width: 50px;
+  height: 50px;
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 50px;
+  height: 55px;
+  
+
+
+  box-sizing: border-box;
+  vertical-align: baseline;
+  color: rgb(255, 255, 255);
+  cursor: pointer;
+  text-decoration: none solid rgb(255, 255, 255);
+  outline: rgb(255, 255, 255) none 0px;
+  align-items: center;
+  appearance: none;
+  background: none 0% 0% / auto repeat scroll padding-box border-box rgb(35, 35, 35);
+  display: flex;
+  flex-shrink: 0;
+  font-kerning: auto;
+  font-optical-sizing: auto;
+  font-stretch: 100%;
+  font-variant: normal;
+  font-variation-settings: normal;
+  justify-content: center;
+  max-width: 100%;
+  position: relative;
+  white-space: nowrap;
+  user-select: none;
+  border-radius: 15px;
+  transition-property: border, background-color, color, box-shadow, opacity, filter, transform;
+  box-shadow: rgba(0, 0, 0, 0.11) 0px -1px 1px 0px inset, rgba(0, 0, 0, 0) 0px 8px 2px 0px, rgba(0, 0, 0, 0.01) 0px 5px 2px 0px, rgba(0, 0, 0, 0.04) 0px 3px 2px 0px, rgba(0, 0, 0, 0.07) 0px 1px 1px 0px, rgba(0, 0, 0, 0.08) 0px 0px 1px 0px;
+  filter: none;
+  list-style: outside none none;
+  text-size-adjust: 100%;
+}
+
+.tab-icon {
+  width: 22.5px;
+  height: 22.5px;
+}
+
+.tab-name {
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.play-btn {  
+  width: 250px;
+  height: 40px;
+  border-radius: 20px;
+  background: rgb(95, 95, 95);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 23px;
+  text-align: center;
+  color: rgb(255, 255, 255);
+
+}
+
+.play-btn.active{
+  width: 250px;
+  height: 40px;
+  border-radius: 20px;
+  background: rgb(255, 96, 69);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 23px;
+  text-align: center;
+  color: rgb(255, 255, 255);
+
+}
+
+
+.coin-icon{
+  width: 25px;
+  height: 25px;
+}
+
+
+
+
+.mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: #000; /* corrected */
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader-2 {
+ 
+}
+
+.loader-2:after {
+  content: " ";
+  display: block;
+  width: 50px;
+  height: 50px;
+  margin: 8px;
+  border-radius: 50%;
+  border: 6px solid #000;
+  border-color: rgb(255, 96, 69) transparent rgba(255, 97, 69, 0.5) transparent;
+  animation: loader-2-dual-spin 2s linear infinite;
+}
+
+@keyframes loader-2-dual-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
