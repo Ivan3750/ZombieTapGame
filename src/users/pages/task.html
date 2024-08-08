@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../style/normalize.css">
-    <link rel="stylesheet" href="../style/index.css">
-    <link rel="stylesheet" href="../style/task.css">
+    <link rel="stylesheet" href="../../users/style/normalize.css">
+    <link rel="stylesheet" href="../../users/style/.css">
+    <link rel="stylesheet" href="../../users/style/task.css">
     <title>Boost</title>
 </head>
 <body>
@@ -15,7 +15,7 @@
   <main>
     <div class="main">
       <div class="score">
-        <p>3,042</p>
+        <p id="score-money">3,042</p>
         <img class="coin" src="../../assets/icons/coin.png" alt=""></div>
     <div class="task-block">
         <div class="task-box">
@@ -54,19 +54,19 @@
     </div>
     </div>
     <div class="controls">
-      <a href="../pages/boost.html">
+      <a href="/boost">
         <div class="tab">
           <img src="../../assets/icons/rocket_6437747.png" alt="" class="tab-icon">
           <p class="tab-name">Boosts</p>
         </div>
       </a> 
-      <a href="../pages/task.html">
+      <a href="/task">
       <div class="tab">
         <img src="../../assets/icons/check-list_4630883.png" alt="" class="tab-icon">
         <p class="tab-name">Task</p>
       </div>
       </a>
-      <a href="../pages/index.html">
+      <a href="/">
       <div class="tab">
         <img src="../../assets/icons/house_10723211.png" alt="" class="tab-icon">
         <p class="tab-name">Home</p>
@@ -78,7 +78,7 @@
         <p class="tab-name">Skins</p>
       </div>
       </a>
-      <a href="../pages/friends.html">
+      <a href="/friends">
       <div class="tab">
         <img src="../../assets/icons/users_149066.png" alt="" class="tab-icon">
         <p class="tab-name">Friends</p>
@@ -86,7 +86,9 @@
       </a>
     </div>
   </main>
-    
-<script src="../scripts/normalize.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script type="module" src="../../users/scripts/getData.js"></script>
+  <script type="module" src="../../users/scripts/task.js"></script>
+  <script  src="../../users/scripts/normalize.js"></script>
 </body>
 </html>
