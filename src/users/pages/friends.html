@@ -2,10 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Permissions-Policy" content="clipboard-read=(), clipboard-write=()">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" >
     <link rel="stylesheet" href="../../users/style/normalize.css">
     <link rel="stylesheet" href="../../users/style/index.css">
     <link rel="stylesheet" href="../../users/style/friends.css">
+    
     <title>Boost</title>
 </head>
 <body>
@@ -20,36 +22,7 @@
       </div>
       <button class="invite-btn">Invite Friends</button>
     <div class="friends-block">
-        <div class="friends-box">
-            <div class="friends-icon-box">
-            </div>
-            <div class="friends-info">
-                <p class="friends-name">Peter</p>
-            </div>
-<div class="friends-reward-box">
-              <p class="friends-reward-amount">600</p>
-              <img src="../../assets/icons/coin.png" class="coin-icon" alt="">
-            </div>        </div>
-        <div class="friends-box">
-          <div class="friends-icon-box">
-          </div>
-          <div class="friends-info">
-              <p class="friends-name">Peter</p>
-          </div>
-<div class="friends-reward-box">
-              <p class="friends-reward-amount">600</p>
-              <img src="../../assets/icons/coin.png" class="coin-icon" alt="">
-            </div>      </div>
-      <div class="friends-box">
-        <div class="friends-icon-box">
-        </div>
-        <div class="friends-info">
-            <p class="friends-name">Peter</p>
-        </div>
-<div class="friends-reward-box">
-              <p class="friends-reward-amount">600</p>
-              <img src="../../assets/icons/coin.png" class="coin-icon" alt="">
-            </div>    </div>
+    </div>
     </div>
     </div>
     <div class="controls">
@@ -85,7 +58,9 @@
       </a>
     </div>
   </main>
-    
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script type="module" src="../../users/scripts/getData.js"></script>
+  <script src="../../users/scripts/friends.js"></script>
   <script src="../../users/scripts/normalize.js"></script>
 
 </body>

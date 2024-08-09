@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', function () {
     var metaViewport = document.querySelector('meta[name=viewport]');
     if (metaViewport) {
@@ -16,8 +17,5 @@ document.addEventListener('DOMContentLoaded', function () {
     mask.remove();
   
   });
-  
 
-/* if(window.innerWidth > 768){
-  window.location.href = "../pages/error.html"
-} */
+

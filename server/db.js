@@ -51,7 +51,7 @@ const disconnectDB = async () => {
 };
 
 // New function to create a user if they don't exist
-const createUserIfNotExists = async (userId, userNickname, userName) => {
+const createUserIfNotExists = async (userId, userNickname, userName, photoFileId) => {
   const pool = await connectDB(); // Ensure connectDB is properly defined to return a pool
   const client = await pool.connect(); // Acquire a client from the pool
   try {
@@ -73,30 +73,28 @@ const createUserIfNotExists = async (userId, userNickname, userName) => {
       INSERT INTO users (
         user_id, user_nickname, user_name, money, heart_limit_lvl, 
         regeneration_lvl, multitap_lvl, last_time_heart, 
-        active_skin, max_skins, game_hearts, task_summary
+        active_skin, max_skins, game_hearts, task_summary, image
       ) VALUES (
         $1, $2, $3, 0, 1, 
         1, 1, $4, 
-        1, 1, 3, $5::jsonb
+        1, 1, 3, $5, $6
       )
       ON CONFLICT (user_id) DO NOTHING
     `;
 
     const currentDate = new Date().toISOString(); // Ensure the date is in ISO format
 
-    await client.query(userInsertQuery, [userId, userNickname, userName, currentDate, taskSummaryJson]);
+    await client.query(userInsertQuery, [userId, userNickname, userName, currentDate, taskSummaryJson, photoFileId]);
 
     console.log('User checked/created successfully with tasks');
   } catch (err) {
     console.error('Error creating user:', err.message);
-    if (process.env.NODE_ENV === 'development') {
-      console.error(err.stack); // Optionally log stack trace in debug mode
-    }
     throw err; // Consider rethrowing or handling specific errors
   } finally {
     client.release(); // Release the client back to the pool
   }
 };
+
 
 const writeRef = async (referralCode, userId) => {
   const pool = await connectDB(); // Ensure connectDB is properly defined to return a pool
@@ -140,7 +138,6 @@ const writeRef = async (referralCode, userId) => {
     client.release();
   }
 };
-
 
 
 module.exports = {

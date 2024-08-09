@@ -1,46 +1,46 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const nameInput = document.getElementById('name');
-  const rewardInput = document.getElementById('reward');
-  const descriptionInput = document.getElementById('description');
-  const submitButton = document.getElementById('submit');
+const amountUsers = document.querySelector('.amount-users');
+const taskBlock = document.querySelector('.task-block');
+fetch("/api/users")
+.then(res=> res.json())
+.then(amount=>{
+  amountUsers.innerHTML = JSON.stringify(amount)
 
-  const form = document.getElementById('form');
-  form.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const name = nameInput.value;
-    const reward = rewardInput.value;
-    const description = descriptionInput.value;
+})
+fetch("/api/tasks")
+  .then(res => res.json())
+  .then(taskArray => {
+    taskArray.forEach(task => {
+      // Встановлюємо значення за замовчуванням для відсутніх властивостей
+      const title = task.title || 'Untitled Task';
+      const reward = task.reward || 0;
+      const imgBuffer = task.image; // Припускаємо, що image є в об'єкті task
+      let imgUrl = ''; // Задаємо URL за замовчуванням для картинки
 
-    if (!name || !reward || !description) {
-      alert('Please fill out all fields.');
-      return;
-    }
+      if (imgBuffer && imgBuffer.data && imgBuffer.data.length > 0) {
+        // Конвертуємо Buffer в Blob та потім в URL, якщо дані зображення присутні
+        const arrayBuffer = new Uint8Array(imgBuffer.data).buffer;
+        const blob = new Blob([arrayBuffer]);
+        imgUrl = URL.createObjectURL(blob);
+      }
 
-    // Clear input fields
-    nameInput.value = '';
-    rewardInput.value = '';
-    descriptionInput.value = '';
+      // Конструюємо HTML для кожної задачі
+      taskBlock.innerHTML += `
+        <div class="task-box">
+          <div class="task-icon-box">
+            <img src="${imgUrl}" alt="Task image" class="task-image">
+          </div>
+          <div class="task-info">
+            <p class="task-name">${title}</p>
+            <div class="task-reward-box">
+              <p class="reward-amount">${reward}</p>
+              <img src="../../assets/icons/coin.png" class="coin-icon" alt="Coin icon">
+            </div>        
+          </div>
+        </div>
+      `;
+    });
+  
+  })
+  .catch(error => {
+    console.error('Error fetching tasks:', error);
   });
-
-  const imageBox = document.querySelector('.task-image-box');
-  const fileInput = document.getElementById('file-input');
-  const taskImage = document.querySelector('.task-image-icon');
-
-  imageBox.addEventListener('click', () => {
-    fileInput.click();
-  });
-
-  fileInput.addEventListener('change', (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        taskImage.src = e.target.result;
-        taskImage.style.width = "100%"
-        taskImage.style.height = "100%"
-        taskImage.style.borderRadius = "50%"
-      };
-      reader.readAsDataURL(file);
-    }
-  });
-});

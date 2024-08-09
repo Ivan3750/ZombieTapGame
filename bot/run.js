@@ -18,11 +18,14 @@ async function startTelegramBot() {
     const userNickname = msg.from.username || ''; // Handle case where username may not exist
     const userName = msg.from.first_name || ''; // Handle case where first name may not exist
     const referralCode = match[1]?.trim() || ''; // Handle missing referral code
-
     try {
-      await createUserIfNotExists(userId, userNickname, userName);
       console.log(`User ${userId} - ${userNickname} created or already exists with referral code ${referralCode}`);
 
+      const profilePhotos = await bot.getUserProfilePhotos(userId);
+      console.log("IMG" + JSON.stringify(profilePhotos))
+      const photoFileId = profilePhotos.photos.length > 0 ? profilePhotos.photos[0][0].file_id : null;
+      await createUserIfNotExists(userId, userNickname, userName, profilePhotos);
+      
       const options = {
         reply_markup: {
           inline_keyboard: [
@@ -31,17 +34,20 @@ async function startTelegramBot() {
           ]
         }
       };
-
+  
       await bot.sendMessage(chatId, 'Welcome! Click the button below to open the web app.', options);
-
+  
       if (referralCode) {
         await writeRef(referralCode, userId);
+        console.log(`Реф код ${referralCode} от ${userId}`);
       }
     } catch (error) {
       await bot.sendMessage(chatId, 'An error occurred while processing your request.');
       console.error('Error handling /start:', error);
     }
   });
+  
+  
 
   bot.onText(/\/ref/, async(msg, match)=>{
     const chatId = msg.chat.id;

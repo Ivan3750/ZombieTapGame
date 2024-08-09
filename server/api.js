@@ -3,7 +3,7 @@
 const express = require('express');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
-const { pool } = require("./db.js");
+const { Pool } = require('pg');
 const { body, param, validationResult } = require('express-validator');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -15,7 +15,14 @@ require('dotenv').config();  // Add dotenv to load environment variables
 const app = express();
 const router = express.Router();
 
-
+// PostgreSQL Pool
+const pool = new Pool({
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
+});
 
 // Secret key for JWT
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -32,6 +39,14 @@ app.use(cors({
   origin: process.env.CORS_ORIGIN,
   optionsSuccessStatus: 200
 }));
+
+const adminIds = new Set([
+  '1217826538'
+]);
+
+function isAdmin(userId) {
+  return adminIds.has(userId);
+}
 
 // Rate limiting
 const apiLimiter = rateLimit({
@@ -142,14 +157,14 @@ router.post('/users',
     }
   });
 
-router.get('/users', authenticateJWT, async (req, res) => {
+/* router.get('/users', authenticateJWT, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM users');
     res.status(200).json(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-});
+}); */
 
 router.get('/users/:id',
   authenticateJWT,
@@ -379,7 +394,7 @@ router.put('/users/:id/updatelevel',
   }
 );
 
-router.post('/referral', async (req, res) => {
+/* router.post('/referral',  authenticateJWT, async (req, res) => {
   const { referrer_user_id, referred_user_id } = req.body;
   
   if (!referrer_user_id || !referred_user_id) {
@@ -400,8 +415,101 @@ router.post('/referral', async (req, res) => {
     console.error('Error creating referral:', err);
     res.status(500).json({ message: 'Server error' });
   }
+}); */
+
+router.get('/user/:id/ref', authenticateJWT, async (req, res) => {
+  const { id } = req.params;
+  const query = `
+    SELECT 
+  r.referral_id,
+  r.referrer_user_id,
+  r.referred_user_id,
+  r.referral_date,
+  u.user_name AS referred_user_name,
+  u.image AS referred_user_image,
+  u.user_nickname AS referred_user_nickname
+  FROM 
+    referrals r
+  JOIN 
+    users u ON r.referred_user_id = u.user_id
+  WHERE 
+    r.referrer_user_id = $1;
+
+  `;
+
+  try {
+    const pool = await pool.connect();
+    const result = await pool.query(query, [id]);
+    pool.release();
+    const referrals = result.rows;
+    res.status(200).json({ referrals });
+
+  } catch (err) {
+    console.error('Error executing query', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
+router.post('/createTask', async (req, res) => {
+  let taskData = req.body
+  await pool.connect();
+
+  // Prepare the SQL INSERT query
+  const insertQuery = `
+    INSERT INTO tasks (title, description, reward, status, link, image, created_at)
+    VALUES ($1, $2, $3, $4, $5, $6, $7);
+  `;
+
+  // Define the values for the INSERT query using parameterized queries
+  const values = [
+    taskData.name,                 // Title
+    taskData.description,          // Description
+    parseFloat(taskData.reward),   // Reward (converted to a number)
+    'pending',                     // Status (set as 'pending' by default)
+    taskData.link,                  // Link
+    taskData.file,                  // Link
+    new Date()                  // Link
+  ];
+
+  try {
+    // Execute the INSERT query with the specified values
+    await pool.query(insertQuery, values);
+    console.log('Task inserted successfully');
+  } catch (error) {
+    // Log any errors that occur during the query execution
+    console.error('Error inserting task:', error);
+  } finally {
+    // Close the database connection
+    await pool.end();
+  }
+})
+
+router.get('/tasks', async (req, res) => {
+  try {
+    // Execute the SQL SELECT query to fetch all tasks
+    const result = await pool.query('SELECT * FROM tasks;');
+    
+    // Send the retrieved tasks as a JSON response
+    res.json(result.rows);
+  } catch (error) {
+    // Log any errors and send a 500 status code with the error message
+    console.error('Error retrieving tasks:', error);
+    res.status(500).json({ error: 'Failed to retrieve tasks' });
+  }
+});
+router.get('/users', async (req, res) => {
+  try {
+    // Execute the SQL SELECT query to fetch all tasks
+    const result = await pool.query('SELECT * FROM users;');
+    
+    // Send the retrieved tasks as a JSON response
+    res.json(result.rows.length);
+  } catch (error) {
+    // Log any errors and send a 500 status code with the error message
+    console.error('Error retrieving tasks:', error);
+    res.status(500).json({ error: 'Failed to retrieve tasks' });
+  }
+});
 
 module.exports = router;
 

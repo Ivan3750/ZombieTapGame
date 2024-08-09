@@ -56,5 +56,12 @@ router.get("/admin", (req, res) => {
     }
   });
 });
+router.get("/createTask", (req, res) => {
+  res.sendFile(path.join(__dirname, "../src", "admin", "pages", "createTask.html"), (err) => {
+    if (err) {
+      res.status(err.status || 500).send("Internal Server Error");
+    }
+  });
+});
 
 module.exports = router;
