@@ -1,3 +1,5 @@
+import {fetchUserData} from "../scripts/getData.js"
+
 let zombieIndex = 1;
 const canvas = document.getElementById("game-canvas");
 const ctx = canvas.getContext("2d");
@@ -468,26 +470,39 @@ function restartGame() {
 }
 
 // Start the game after loading all images
-function startGame() {
-  loadImages([
-    backgroundImage,
-    groundImage,
-    ...obstacleImages,
-    ...ghostImages,
-    ...zombieRunImages,
-    ...zombieJumpImages,
-    ...zombieIdleImages,
-    ...zombieAttackImages,
-  ])
-    .then(() => {
-      gameStarted = true;
-      window.addEventListener("click", restartGame);
-      setInterval(gameLoop, 1000 / 60);
-    })
-    .catch((error) => {
-      console.error("Error loading images:", error);
-    });
+async function startGame() {
+  try {
+    // Завантажити зображення
+    await loadImages([
+      backgroundImage,
+      groundImage,
+      ...obstacleImages,
+      ...ghostImages,
+      ...zombieRunImages,
+      ...zombieJumpImages,
+      ...zombieIdleImages,
+      ...zombieAttackImages,
+    ]);
+
+    // Отримати дані користувача
+    const user = await fetchUserData();
+
+
+    // Налаштувати множник
+    multiplier = user.multitap_lvl;
+    console.log("LVL SET:" + multiplier);
+    console.log("LVL:" + user.multitap_lvl);
+
+    // Розпочати гру
+    gameStarted = true;
+    window.addEventListener("click", restartGame);
+    setInterval(gameLoop, 1000 / 60);
+
+  } catch (error) {
+    console.error("Error loading images or fetching user data:", error);
+  }
 }
+
 
 // Main game loop
 function gameLoop() {
@@ -539,7 +554,7 @@ function handleTouchEnd() {
 function jump() {
   zombieSpeedY = jumpPower;
   isJumping = true;
-  tokens += 1 + Math.floor(score / 400);
+  tokens += multiplier + Math.floor(score / 400);
 }
 
 // Make the zombie attack

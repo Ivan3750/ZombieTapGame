@@ -39,5 +39,10 @@ fetch(`api/user/${user.user.id}/ref`, {
 })
 .catch((err)=>{
     console.error(err)
+    friendsBlock.innerHTML += ` <div class="friends-box">
+          <p class="friends-nothing-text">You have no friends</p>
+        </div>`
+        friendsAmount.innerHTML = 0
+        friendsText.innerHTML = "Friends"
 })
 

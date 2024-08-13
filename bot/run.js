@@ -1,81 +1,84 @@
 const TelegramBot = require('node-telegram-bot-api');
 const axios = require('axios');
-const { createUserIfNotExists, connectDB, writeRef } = require('../server/db.js'); // Import database functions
-require('dotenv').config();  // Load environment variables
+const { createUserIfNotExists, connectDB, writeRef } = require('../server/db.js');
+require('dotenv').config();
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const WEB_APP_URL = process.env.WEB_APP_URL; // Your web app URL
+const WEB_APP_URL = process.env.WEB_APP_URL;
 
 async function startTelegramBot() {
-  await connectDB(); // Ensure the database is connected before doing anything with it
+  try {
+    await connectDB(); // Ensure the database is connected before doing anything
 
-  const bot = new TelegramBot(TOKEN, { polling: true });
+    const bot = new TelegramBot(TOKEN, { polling: true });
 
-  // Handle /start command
-  bot.onText(/\/start(.*)/, async (msg, match) => {
-    const chatId = msg.chat.id;
-    const userId = msg.from.id;
-    const userNickname = msg.from.username || ''; // Handle case where username may not exist
-    const userName = msg.from.first_name || ''; // Handle case where first name may not exist
-    const referralCode = match[1]?.trim() || ''; // Handle missing referral code
-    try {
-      console.log(`User ${userId} - ${userNickname} created or already exists with referral code ${referralCode}`);
+    // Handle /start command
+    bot.onText(/\/start(.*)/, async (msg, match) => {
+      const { id: chatId } = msg.chat;
+      const { id: userId, username: userNickname = '', first_name: userName = '' } = msg.from;
+      const referralCode = match[1]?.trim() || '';
 
-      const profilePhotos = await bot.getUserProfilePhotos(userId);
-      console.log("IMG" + JSON.stringify(profilePhotos))
-      const photoFileId = profilePhotos.photos.length > 0 ? profilePhotos.photos[0][0].file_id : null;
-      await createUserIfNotExists(userId, userNickname, userName, profilePhotos);
-      
-      const options = {
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: 'Start Game', web_app: { url: WEB_APP_URL } }],
-            [{ text: 'Join', web_app: { url: WEB_APP_URL } }]
-          ]
-        }
-      };
-  
-      await bot.sendMessage(chatId, 'Welcome! Click the button below to open the web app.', options);
-  
-      if (referralCode) {
-        await writeRef(referralCode, userId);
-        console.log(`Реф код ${referralCode} от ${userId}`);
-      }
-    } catch (error) {
-      await bot.sendMessage(chatId, 'An error occurred while processing your request.');
-      console.error('Error handling /start:', error);
-    }
-  });
-  
-  
+      try {
+        console.log(`User ${userId} - ${userNickname} created or already exists with referral code ${referralCode}`);
 
-  bot.onText(/\/ref/, async(msg, match)=>{
-    const chatId = msg.chat.id;
-    const userId = msg.from.id;
-    const userNickname = msg.from.username || ''; // Handle case where username may not exist
-    const userName = msg.from.first_name || ''; // Handle case where first name may not exist
+        const profilePhotos = await bot.getUserProfilePhotos(userId);
+        const photoFileId = profilePhotos.photos.length > 0 ? profilePhotos.photos[0][0].file_id : null;
 
-    bot.sendMessage(chatId, `Your referral link: https://t.me/ZombieTapTest_bot?start=${userId}`);
-  })
+        await createUserIfNotExists(userId, userNickname, userName, profilePhotos);
 
-  async function setMenuButton() {
-    try {
-      const response = await axios.post(`https://api.telegram.org/bot${TOKEN}/setChatMenuButton`, {
-        menu_button: {
-          type: 'web_app',
-          text: 'game',
-          web_app: {
-            url: WEB_APP_URL
+        const options = {
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: 'Start Game', web_app: { url: WEB_APP_URL } }],
+              [{ text: 'Join', web_app: { url: WEB_APP_URL } }],
+              [{ text: 'Admin', web_app: { url: `${WEB_APP_URL}/admin` } }]
+            ]
           }
-        }
-      });
-      console.log('Menu button set:', response.data);
-    } catch (error) {
-      console.error('Error setting menu button:', error);
-    }
-  }
+        };
 
-  setMenuButton();
+        await bot.sendMessage(chatId, 'Welcome! Click the button below to open the web app.', options);
+
+        if (referralCode) {
+          await writeRef(referralCode, userId);
+          console.log(`Referral code ${referralCode} used by ${userId}`);
+        }
+      } catch (error) {
+        console.error('Error handling /start:', error);
+        await bot.sendMessage(chatId, 'An error occurred while processing your request.');
+      }
+    });
+
+    // Handle /ref command
+    bot.onText(/\/ref/, async (msg) => {
+      const { id: chatId } = msg.chat;
+      const { id: userId } = msg.from;
+
+      const referralLink = `https://t.me/ZombieTapTest_bot?start=${userId}`;
+      await bot.sendMessage(chatId, `Your referral link: ${referralLink}`);
+    });
+
+    // Set the menu button
+    async function setMenuButton() {
+      try {
+        const response = await axios.post(`https://api.telegram.org/bot${TOKEN}/setChatMenuButton`, {
+          menu_button: {
+            type: 'web_app',
+            text: 'game',
+            web_app: {
+              url: WEB_APP_URL
+            }
+          }
+        });
+        console.log('Menu button set:', response.data);
+      } catch (error) {
+        console.error('Error setting menu button:', error);
+      }
+    }
+
+    await setMenuButton();
+  } catch (error) {
+    console.error('Error starting Telegram bot:', error);
+  }
 }
 
 module.exports = { startTelegramBot };

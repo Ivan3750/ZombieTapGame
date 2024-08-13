@@ -394,70 +394,52 @@ router.put('/users/:id/updatelevel',
   }
 );
 
-/* router.post('/referral',  authenticateJWT, async (req, res) => {
-  const { referrer_user_id, referred_user_id } = req.body;
-  
-  if (!referrer_user_id || !referred_user_id) {
-    return res.status(400).json({ message: 'Referrer and referred user IDs are required.' });
-  }
-
-  try {
-    const referralDate = new Date();
-    const query = `
-      INSERT INTO referrals (referrer_user_id, referred_user_id, referral_date)
-      VALUES ($1, $2, $3) RETURNING referral_id
-    `;
-    const values = [referrer_user_id, referred_user_id, referralDate];
-
-    const result = await pool.query(query, values);
-    res.status(201).json({ message: 'Referral created successfully', referralId: result.rows[0].referral_id });
-  } catch (err) {
-    console.error('Error creating referral:', err);
-    res.status(500).json({ message: 'Server error' });
-  }
-}); */
-
 router.get('/user/:id/ref', authenticateJWT, async (req, res) => {
   const { id } = req.params;
+
+  // Parameterized query to prevent SQL injection
   const query = `
     SELECT 
-  r.referral_id,
-  r.referrer_user_id,
-  r.referred_user_id,
-  r.referral_date,
-  u.user_name AS referred_user_name,
-  u.image AS referred_user_image,
-  u.user_nickname AS referred_user_nickname
-  FROM 
-    referrals r
-  JOIN 
-    users u ON r.referred_user_id = u.user_id
-  WHERE 
-    r.referrer_user_id = $1;
-
+      r.referral_id,
+      r.referrer_user_id,
+      r.referred_user_id,
+      r.referral_date,
+      u.user_name AS referred_user_name,
+      u.image AS referred_user_image,
+      u.user_nickname AS referred_user_nickname
+    FROM 
+      referrals r
+    JOIN 
+      users u ON r.referred_user_id = u.user_id
+    WHERE 
+      r.referrer_user_id = $1;
   `;
 
   try {
-    const pool = await pool.connect();
-    const result = await pool.query(query, [id]);
-    pool.release();
-    const referrals = result.rows;
-    res.status(200).json({ referrals });
-
+    // Use pool.connect() carefully to avoid leaks and ensure release
+    const client = await pool.connect();
+    try {
+      const result = await client.query(query, [id]);
+      const referrals = result.rows;
+      res.status(200).json({ referrals });
+    } finally {
+      // Release the client back to the pool in the finally block to ensure it's released in all cases
+      client.release();
+    }
   } catch (err) {
+    // Log error for debugging, avoid exposing sensitive info to users
     console.error('Error executing query', err);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
 router.post('/createTask', async (req, res) => {
-  let taskData = req.body
-  await pool.connect();
+  const taskData = req.body;
 
   // Prepare the SQL INSERT query
   const insertQuery = `
-    INSERT INTO tasks (title, description, reward, status, link, image, created_at)
-    VALUES ($1, $2, $3, $4, $5, $6, $7);
+    INSERT INTO tasks (title, description, reward, link, image, created_at)
+    VALUES ($1, $2, $3, $4, $5, $6);
   `;
 
   // Define the values for the INSERT query using parameterized queries
@@ -465,28 +447,25 @@ router.post('/createTask', async (req, res) => {
     taskData.name,                 // Title
     taskData.description,          // Description
     parseFloat(taskData.reward),   // Reward (converted to a number)
-    'pending',                     // Status (set as 'pending' by default)
-    taskData.link,                  // Link
-    taskData.file,                  // Link
-    new Date()                  // Link
+    taskData.link,                 // Link
+    taskData.file,                 // Image (Base64)
+    new Date()                     // Created_at
   ];
 
   try {
-    // Execute the INSERT query with the specified values
     await pool.query(insertQuery, values);
+    res.status(201).json({ status: "Task inserted successfully" });
     console.log('Task inserted successfully');
   } catch (error) {
-    // Log any errors that occur during the query execution
+    res.status(500).json({ error: 'Error inserting task' });
     console.error('Error inserting task:', error);
-  } finally {
-    // Close the database connection
-    await pool.end();
   }
-})
+});
+
 
 router.get('/tasks', async (req, res) => {
   try {
-    // Execute the SQL SELECT query to fetch all tasks
+    await pool.connect();
     const result = await pool.query('SELECT * FROM tasks;');
     
     // Send the retrieved tasks as a JSON response
