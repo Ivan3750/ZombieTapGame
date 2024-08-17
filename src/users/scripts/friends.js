@@ -27,6 +27,8 @@ fetch(`api/user/${user.user.id}/ref`, {
     data.referrals.forEach(refferral => {
         friendsBlock.innerHTML += `<div class="friends-box">
     <div class="friends-icon-box">
+            <img src="../../assets/sprites/friends/${Math.round(Math.random()*3)}.png" alt="" class="friends-icon">
+
     </div>
     <div class="friends-info">
         <p class="friends-name">${refferral.referred_user_name}</p>

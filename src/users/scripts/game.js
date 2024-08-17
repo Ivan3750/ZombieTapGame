@@ -1,6 +1,5 @@
 import {fetchUserData} from "../scripts/getData.js"
 
-let zombieIndex = 1;
 const canvas = document.getElementById("game-canvas");
 const ctx = canvas.getContext("2d");
 
@@ -9,6 +8,12 @@ function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 }
+
+const user = await fetchUserData();
+
+let zombieIndex = user.active_skin
+// Налаштувати множник
+let multiplier = user.multitap_lvl;
 
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
@@ -47,7 +52,6 @@ let obstacleSpeed = initialObstacleSpeed;
 /* GAME */
 let score = 0;
 let tokens = 0;
-let multiplier = 1;
 let gameOver = false;
 let gameStarted = false;
 const spawnSensitivity = 0.75;
@@ -303,36 +307,10 @@ function draw() {
 
   if (gameOver) {
     gameOverScreen();
-    
-  const user = window.Telegram.WebApp.initDataUnsafe.user;
-
-  if (user) {
-    fetch(`api/users/${user.id}/addmoney`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${localStorage.token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ money: tokens }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.error) {
-          console.error("Error:", data.error);
-        } else {
-          console.log("Money added:", data);
-        }
-      })
-      .catch((err) => {
-        console.error("Fetch error:", err);
-      });
-  } else {
-    console.error("User data not found.");
+    updateData()
+ 
   }
-    return;
-  }
-
-  drawZombie();
+    drawZombie();
   drawObstacles();
 
   const scoreImg = new Image();
@@ -459,12 +437,11 @@ function gameOverScreen() {
 
   setTimeout(() => {
     window.location.href = "/";
-  }, 1000);
+  }, 100);
 }
 
 // Restart the game
 function restartGame() {
-  window.removeEventListener("click", restartGame);
   resetGame();
   startGame();
 }
@@ -472,6 +449,8 @@ function restartGame() {
 // Start the game after loading all images
 async function startGame() {
   try {
+        // Отримати дані користувача
+      
     // Завантажити зображення
     await loadImages([
       backgroundImage,
@@ -484,21 +463,14 @@ async function startGame() {
       ...zombieAttackImages,
     ]);
 
-    // Отримати дані користувача
-    const user = await fetchUserData();
 
-
-    // Налаштувати множник
-    multiplier = user.multitap_lvl;
-    console.log("LVL SET:" + multiplier);
-    console.log("LVL:" + user.multitap_lvl);
 
     // Розпочати гру
     gameStarted = true;
-    window.addEventListener("click", restartGame);
     setInterval(gameLoop, 1000 / 60);
 
   } catch (error) {
+    gameStarted = false
     console.error("Error loading images or fetching user data:", error);
   }
 }
@@ -517,7 +489,7 @@ function gameLoop() {
 startGame();
 document.addEventListener("keydown", handleKeyDown);
 
-const DOUBLE_TAP_DELAY = 300; // Delay for double tap in milliseconds
+const DOUBLE_TAP_DELAY = 500; // Delay for double tap in milliseconds 300 or 500
 let tapTimeout;
 
 window.addEventListener("touchend", handleTouchEnd);
@@ -564,3 +536,61 @@ function attack() {
     isAttacking = false;
   }, 500);
 }
+
+async function updateData() {
+  console.log("GSME")
+  const user = window.Telegram.WebApp.initDataUnsafe?.user;
+
+  if (!user) {
+    console.error("User data not found.");
+    return;
+  }
+
+  try {
+    const response = await fetch(`api/users/${user.id}/addmoney`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${localStorage.token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ money: tokens }),
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to add money');
+    }
+
+    console.log("Money added:", data);
+  } catch (err) {
+    console.error("Error:", err.message);
+  }
+  
+
+
+const last_time_heart = new Date();
+
+try {
+  const response = await fetch(`api/minus-hearts/${user.id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.token}`
+    },
+    body: JSON.stringify({ last_time_heart })
+  });
+
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to update hearts');
+  }
+
+  console.log('Updated user:', data);
+} catch (error) {
+  console.error('Error:', error.message);
+
+}
+}
+

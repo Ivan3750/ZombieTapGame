@@ -91,16 +91,7 @@ body {
   position: relative;
 }
 
-body::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 200px;
-  width: 100%;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.522) 0%, rgba(0, 0, 0, 0) 100%);
-  z-index: 5;
-}
+
 
 main {
     padding: 20px 0px;
@@ -206,10 +197,14 @@ main {
     height: 30px;
 }
 .task-info {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    font-weight: 300;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-weight: 300;
+  flex-basis: 100%;
+  align-content: flex-start;
+  align-items: flex-start;
+
 }
 .task-name-bottom{
     display: flex;
@@ -242,3 +237,14 @@ main {
     width: 200px;
   
 }
+.btn-task-delete{
+  cursor: pointer;
+  background-color: transparent;
+  background: red;
+  padding: 12px;
+  border-radius: 18px;
+  font-size: 14px;
+
+}
+
+

@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const fileInput = document.getElementById('file-input');
   const taskImageIcon = document.querySelector('.task-image-icon');
   const form = document.getElementById('form');
-  const taskBlock = document.getElementById('task-block'); // Assuming this exists
+  const taskBlock = document.getElementById('task-block');
   let base64Image = '';
 
   // Click event for the image icon
@@ -14,6 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
   fileInput.addEventListener('change', (event) => {
     const file = event.target.files[0];
     if (file) {
+      if (!file.type.startsWith('image/')) {
+        alert('Please select a valid image file.');
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (e) => {
         taskImageIcon.src = e.target.result;
@@ -39,10 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const data = {
-      name: name,
-      reward: reward,
-      description: description,
-      link: link,
+      name,
+      reward,
+      description,
+      link,
       file: base64Image,
     };
 
@@ -56,19 +61,18 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (!response.ok) {
-        throw new Error('Network response was not ok.');
+        const errorText = await response.text();
+        throw new Error(`Network response was not ok: ${errorText}`);
       }
 
       alert('Task created successfully!');
       form.reset();
       taskImageIcon.src = '../assets/icons/upload.png';
+      base64Image = ''; // Reset the base64 image
 
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
       alert('An error occurred while creating the task.');
     }
   });
-
-  // Fetch tasks
-
 });

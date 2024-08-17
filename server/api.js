@@ -11,7 +11,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 require('dotenv').config();  // Add dotenv to load environment variables
 
-// Initialize Express app
+// Initialize Express router
 const app = express();
 const router = express.Router();
 
@@ -30,32 +30,25 @@ const JWT_SECRET = process.env.JWT_SECRET;
 // Telegram bot token
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
-// Apply middleware
-app.set('trust proxy', '192.168.1.1');  // Adjust this to your proxy settings
-app.use(express.json());
-app.use(helmet());
-app.use(morgan('combined'));
-app.use(cors({
+// routerly middleware
+/* router.set('trust proxy', '192.168.1.1');  // Adjust this to your proxy settings
+ */router.use(express.json());
+router.use(helmet());
+router.use(morgan('combined'));
+router.use(cors({
   origin: process.env.CORS_ORIGIN,
   optionsSuccessStatus: 200
 }));
 
-const adminIds = new Set([
-  '1217826538'
-]);
-
-function isAdmin(userId) {
-  return adminIds.has(userId);
-}
 
 // Rate limiting
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 7 * 60 * 1000, // 15 minutes
+  max: 10000, // limit each IP to 100 requests per windowMs
   message: 'Too many requests from this IP, please try again after 15 minutes.',
   trustProxy: 1 // Adjust this according to your proxy setup
 });
-app.use(apiLimiter);
+router.use(apiLimiter);
 
 // JWT Authentication Middleware
 const authenticateJWT = (req, res, next) => {
@@ -148,7 +141,7 @@ router.post('/users',
     const { user_id, user_nickname, user_name } = req.body;
     try {
       const result = await pool.query(
-        'INSERT INTO users (user_id, user_nickname, user_name, money, hurt_limit_lvl, regeneration_lvl, multitap_lvl) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+        'INSERT INTO users (user_id, user_nickname, user_name, money, heart_limit_lvl, regeneration_lvl, multitap_lvl) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
         [user_id, user_nickname, user_name, 0, 1, 1, 1]
       );
       res.status(201).json(result.rows[0]);
@@ -195,7 +188,7 @@ router.put('/users/:id',
     body('user_nickname').optional().isString().withMessage('Nickname must be a string'),
     body('user_name').optional().isString().withMessage('Name must be a string'),
     body('money').optional().isInt().withMessage('Money must be an integer'),
-    body('hurt_limit_lvl').optional().isInt().withMessage('Hurt limit level must be an integer'),
+    body('heart_limit_lvl').optional().isInt().withMessage('Hurt limit level must be an integer'),
     body('regeneration_lvl').optional().isInt().withMessage('Regeneration level must be an integer'),
     body('multitap_lvl').optional().isInt().withMessage('Multitap level must be an integer'),
   ],
@@ -206,12 +199,12 @@ router.put('/users/:id',
     }
 
     const { id } = req.params;
-    const { user_nickname, user_name, money, hurt_limit_lvl, regeneration_lvl, multitap_lvl } = req.body;
+    const { user_nickname, user_name, money, heart_limit_lvl, regeneration_lvl, multitap_lvl } = req.body;
 
     try {
       const result = await pool.query(
-        'UPDATE users SET user_nickname = COALESCE($1, user_nickname), user_name = COALESCE($2, user_name), money = COALESCE($3, money), hurt_limit_lvl = COALESCE($4, hurt_limit_lvl), regeneration_lvl = COALESCE($5, regeneration_lvl), multitap_lvl = COALESCE($6, multitap_lvl) WHERE user_id = $7 RETURNING *',
-        [user_nickname, user_name, money, hurt_limit_lvl, regeneration_lvl, multitap_lvl, id]
+        'UPDATE users SET user_nickname = COALESCE($1, user_nickname), user_name = COALESCE($2, user_name), money = COALESCE($3, money), heart_limit_lvl = COALESCE($4, heart_limit_lvl), regeneration_lvl = COALESCE($5, regeneration_lvl), multitap_lvl = COALESCE($6, multitap_lvl) WHERE user_id = $7 RETURNING *',
+        [user_nickname, user_name, money, heart_limit_lvl, regeneration_lvl, multitap_lvl, id]
       );
       if (result.rows.length > 0) {
         res.status(200).json(result.rows[0]);
@@ -340,8 +333,8 @@ router.put('/users/:id/updatelevel',
   [
     param('id').isInt().withMessage('ID must be an integer'),
     body('levelType')
-      .isIn(['hurt_limit_lvl', 'regeneration_lvl', 'multitap_lvl'])
-      .withMessage('Level type must be one of hurt_limit_lvl, regeneration_lvl, multitap_lvl'),
+      .isIn(['heart_limit_lvl', 'regeneration_lvl', 'multitap_lvl'])
+      .withMessage('Level type must be one of heart_limit_lvl, regeneration_lvl, multitap_lvl'),
     body('level').isInt({ min: 0 }).withMessage('Level must be a non-negative integer'),
   ],
   async (req, res) => {
@@ -436,10 +429,11 @@ router.get('/user/:id/ref', authenticateJWT, async (req, res) => {
 router.post('/createTask', async (req, res) => {
   const taskData = req.body;
 
-  // Prepare the SQL INSERT query
+  // Prepare the SQL INSERT query for the tasks table
   const insertQuery = `
     INSERT INTO tasks (title, description, reward, link, image, created_at)
-    VALUES ($1, $2, $3, $4, $5, $6);
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING task_id;
   `;
 
   // Define the values for the INSERT query using parameterized queries
@@ -453,14 +447,30 @@ router.post('/createTask', async (req, res) => {
   ];
 
   try {
-    await pool.query(insertQuery, values);
-    res.status(201).json({ status: "Task inserted successfully" });
-    console.log('Task inserted successfully');
+    // Insert the new task and get the task_id
+    const result = await pool.query(insertQuery, values);
+    const newTaskId = result.rows[0].task_id;
+
+    // Prepare the SQL UPDATE query to update the task_summary for all users
+    const updateUserTasksQuery = `
+      UPDATE users
+      SET task_summary = task_summary || jsonb_build_object('status', 'incomplete', 'task_id', $1::integer)::jsonb;
+    `;
+
+    // Execute the query to update all users' task_summary
+    await pool.query(updateUserTasksQuery, [newTaskId]);
+
+    res.status(201).json({ status: "Task inserted and users updated successfully" });
+    console.log('Task inserted and users updated successfully');
   } catch (error) {
-    res.status(500).json({ error: 'Error inserting task' });
-    console.error('Error inserting task:', error);
+    res.status(500).json({ error: 'Error inserting task and updating users' });
+    console.error('Error inserting task and updating users:', error);
   }
 });
+
+
+
+
 
 
 router.get('/tasks', async (req, res) => {
@@ -476,6 +486,34 @@ router.get('/tasks', async (req, res) => {
     res.status(500).json({ error: 'Failed to retrieve tasks' });
   }
 });
+
+router.delete('/tasks/:id', async (req, res) => {
+  const taskId = req.params.id;
+  
+  try {
+    // Get a client from the pool
+    const client = await pool.connect();
+    
+    // Execute the query to delete the task by ID
+    const result = await client.query('DELETE FROM tasks WHERE task_id = $1 RETURNING *;', [taskId]);
+    
+    // Release the client back to the pool
+    client.release();
+    
+    if (result.rowCount === 0) {
+      // If no task was deleted, send a 404 response
+      res.status(404).json({ error: 'Task not found' });
+    } else {
+      // If a task was deleted, send the deleted task as a response
+      res.json(result.rows[0]);
+    }
+  } catch (error) {
+    // Log any errors and send a 500 status code with the error message
+    console.error('Error deleting task:', error);
+    res.status(500).json({ error: 'Failed to delete task' });
+  }
+});
+
 router.get('/users', async (req, res) => {
   try {
     // Execute the SQL SELECT query to fetch all tasks
@@ -490,6 +528,172 @@ router.get('/users', async (req, res) => {
   }
 });
 
+router.get('/tasks/:userId', async (req, res) => {
+  const userId = req.params.userId;
+
+  const query = `
+    SELECT 
+      t.task_id,
+      t.title,
+      t.description,
+      t.reward,
+      t.created_at,
+      t.link,
+      t.image
+    FROM 
+      tasks t
+    WHERE 
+      t.task_id IN (
+        SELECT 
+          (task->>'task_id')::int
+        FROM 
+          users, 
+          jsonb_array_elements(task_summary) AS task
+        WHERE 
+          user_id = $1 
+          AND task->>'status' = 'incomplete'
+      )
+  `;
+
+  try {
+    // Execute the query with the provided userId
+    const result = await pool.query(query, [userId]);
+    
+    // Extract the rows from the result
+    const tasks = result.rows;
+
+    // Send the tasks as a JSON response
+    res.status(200).json({ tasks });
+  } catch (err) {
+    // Log the error to the server console for debugging
+    console.error('Error executing query', err);
+
+    // Send a generic error response to the client
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+
+// Функція для розрахунку інтервалу серця на основі рівня регенерації
+function calculateHeartInterval(regenerationLvl) {
+  const baseInterval = 168000; // 168 секунд в мілісекундах
+  const additionalInterval = 12000; // Додаткові 12 секунд в мілісекундах на кожний рівень
+  return baseInterval + (additionalInterval * (regenerationLvl - 1));
+}
+
+// Функція для підрахунку кількості сердець на основі часу та рівня регенерації
+async function calculateHeartCount(userId) {
+  const { rows } = await pool.query(
+    'SELECT last_time_heart, game_hearts, regeneration_lvl, heart_limit_lvl FROM users WHERE user_id = $1', 
+    [userId]
+  );
+  
+  if (rows.length === 0) {
+      throw new Error('User not found');
+  }
+
+  const { last_time_heart, game_hearts, regeneration_lvl, heart_limit_lvl } = rows[0];
+  const currentTime = new Date();
+  const elapsed = currentTime - new Date(last_time_heart);
+
+  const heartInterval = calculateHeartInterval(regeneration_lvl);
+  const heartsGained = Math.floor(elapsed / heartInterval);
+
+  let newHeartCount = game_hearts + heartsGained;
+
+  if (newHeartCount > heart_limit_lvl) {
+      newHeartCount = heart_limit_lvl;
+  }
+
+  return {
+      newHeartCount,
+      heartsGained,
+      lastTimeHeart: currentTime
+  };
+}
+
+// API для отримання поточної кількості сердець
+router.get('/heart/:userId', async (req, res) => {
+  try {
+      const userId = req.params.userId;
+      const { newHeartCount } = await calculateHeartCount(userId);
+      
+      // Оновлення бази даних
+      await pool.query(
+          'UPDATE users SET game_hearts = $1, last_time_heart = $2 WHERE user_id = $3', 
+          [newHeartCount, new Date(), userId]
+      );
+
+      res.status(200).json({ count: newHeartCount });
+  } catch (error) {
+      console.error(error);
+      res.sendStatus(500);
+  }
+});
+
+// API для оновлення кількості сердець
+router.put('/heart/:userId', async (req, res) => { 
+  try {
+      const userId = req.params.userId;
+      const { newHeartCount, heartsGained, lastTimeHeart } = await calculateHeartCount(userId);
+
+      if (heartsGained > 0) {
+          await pool.query(
+            'UPDATE users SET game_hearts = $1, last_time_heart = $2 WHERE user_id = $3', 
+            [newHeartCount, lastTimeHeart, userId]
+          );
+      }
+
+      res.status(200).json({ count: newHeartCount });
+  } catch (error) {
+      console.error(error);
+      res.sendStatus(500);
+  }
+});
+
+// API для зменшення кількості сердець
+router.put('/minus-hearts/:userId', authenticateJWT, async (req, res) => {
+  const { userId } = req.params;
+  const { last_time_heart } = req.body;
+
+  try {
+      const userResult = await pool.query(
+          'SELECT game_hearts, regeneration_lvl, heart_limit_lvl FROM users WHERE user_id = $1',
+          [userId]
+      );
+
+      if (userResult.rows.length === 0) {
+          return res.status(404).json({ error: 'User not found' });
+      }
+
+      const { game_hearts } = userResult.rows[0];
+      const updatedHearts = Math.max(game_hearts - 1, 0);
+
+      const updateResult = await pool.query(
+          'UPDATE users SET game_hearts = $1, last_time_heart = $2 WHERE user_id = $3 RETURNING game_hearts',
+          [updatedHearts, last_time_heart, userId]
+      );
+
+      res.status(200).json({ count: updateResult.rows[0].game_hearts });
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+});
+
+// Інший API маршрут для отримання всіх сердець користувача
+router.get('/hearts/:userId', async (req, res) => {
+  const { userId } = req.params;
+  try {
+      const result = await pool.query('SELECT game_hearts FROM users WHERE user_id = $1', [userId]);
+      if (result.rows.length === 0) {
+          return res.status(404).json({ error: 'User not found' });
+      }
+      res.status(200).json({ count: result.rows[0].game_hearts });
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+});
 module.exports = router;
 
 

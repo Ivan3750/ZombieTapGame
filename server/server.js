@@ -31,8 +31,11 @@ app.use("/", routes);
 app.use("/api", api);
 
 // Handle unsupported methods
-app.all("*", (req, res) => {
+app.all("/api/*", (req, res) => {
   res.status(405).json({ message: "Method Not Allowed" });
+});
+app.all("*/", (req, res) => {
+  res.status(405).json({ message: "404" });
 });
 
 // Start the server and connect to the database
@@ -42,7 +45,6 @@ app.listen(PORT, async () => {
   startTelegramBot(); // Start the Telegram bot
 });
 
-// Handle shutdown gracefully
 process.on('SIGINT', async () => {
   await disconnectDB();
   process.exit(0);

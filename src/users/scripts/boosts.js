@@ -122,6 +122,7 @@ const updateUI = () => {
 
 // Upgrade user level on the server
 const upgradeLevel = async (levelType, level) => {
+  console.log(levelType)
   return apiRequest('updatelevel', { levelType, level });
 }
 
@@ -133,6 +134,7 @@ const subtractMoney = async (priceIndex) => {
 // Centralized API request handler
 const apiRequest = async (endpoint, body) => {
   try {
+    console.log("BODY", body)
     const user = window.Telegram.WebApp.initDataUnsafe.user;
     const response = await fetch(`api/users/${user.id}/${endpoint}`, {
       method: 'PUT',

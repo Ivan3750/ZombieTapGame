@@ -1,47 +1,60 @@
+import { authenticateWithTelegram, fetchUserData } from "../scripts/getData.js";
+
 const zombie = document.querySelector('.avatar');
-const playBtn = document.querySelector('.play-btn');
+const playBtn = document.querySelector('#play-btn');
 const userMoney = document.querySelector('#score-money');
+const userHeart = document.querySelector('#heart-amount');
+let heartCount;
 
-import {authenticateWithTelegram, fetchUserData} from "../scripts/getData.js"
-
-const waitTime = 0; // TEST
-
-const loadMoney = async() =>{
-    const userData = await fetchUserData();
-    userMoney.innerHTML = userData.money;
+const loadUserData = async () => {
+    try {
+        const user = window.Telegram.WebApp.initDataUnsafe;
+        const userData = await fetchUserData();
+        userMoney.innerHTML = userData.money;
+        heartCount = await fetchHeartCount(user.user.id);
+        userHeart.innerHTML = heartCount;
+        updatePlayBtnState(); // Оновлення стану кнопки після завантаження даних
+    } catch (error) {
+        console.error('Error loading user data:', error);
+    }
 }
 
 
-function updatePlayBtnState() {
-    if (waitTime === 0) {
+
+const fetchHeartCount = async (userId) => {
+    try {
+        const response = await fetch(`/api/heart/${userId}`);
+        const data = await response.json();
+        return data.count;
+    } catch (error) {
+        console.error('Error fetching heart count:', error);
+        return 0;
+    }
+}
+
+const updatePlayBtnState = async () => {
+    if (heartCount != 0) {
         playBtn.classList.add("active");
     } else {
         playBtn.classList.remove("active");
     }
 }
 
-function handlePlayBtnClick() {
-    if (waitTime === 0) {
-        playBtn.classList.add("active");
+const handlePlayBtnClick = () => {
+    if (playBtn.classList.contains("active")) {
         window.location.href = "/game";
-    } else {
-        playBtn.classList.remove("active");
     }
 }
-/* 
-function startZombieAnimation() {
-    let i = 1;
-    setInterval(() => {
-        zombie.src = `../../assets/sprites/1/Idle 1 (${i}).png`;
-        i = i % 10 + 1; 
-    }, 125);
-} */
+
 
 window.addEventListener("load", () => {
-    authenticateWithTelegram();
-    loadMoney()
-    updatePlayBtnState();
-/*     startZombieAnimation();
- */});
+    authenticateWithTelegram().then(() => {
+        loadUserData();
+        setInterval(() => {
+            loadUserData();
+        }, 60000); // Перевіряти кожну хвилину
+    });
+});
+
 
 playBtn.addEventListener("click", handlePlayBtnClick);

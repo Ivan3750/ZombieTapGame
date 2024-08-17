@@ -37,7 +37,7 @@
       align-items: center;
 
     }
-    .heart-amount{
+    #heart-amount{
       font-size: 30px;
       font-weight: 800;
       line-height: 69px;
